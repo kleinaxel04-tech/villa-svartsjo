@@ -13,6 +13,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
   <!-- Lenis — smooth scroll -->
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <!-- Pannellum — 360° panorama viewer -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -189,6 +192,65 @@
       font-size: 1.3rem; font-weight: 400; margin-bottom: 0.5rem;
     }
     .highlight-text { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+    /* VIRTUAL TOUR */
+    .tour-section {
+      background: var(--dark);
+      padding: 9rem 0 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .tour-intro {
+      max-width: 700px; margin: 0 auto 4rem;
+      text-align: center; padding: 0 2rem;
+    }
+    .tour-intro .section-label { color: var(--gold-light); }
+    .tour-intro .section-title { color: white; margin-bottom: 1.5rem; }
+    .tour-intro p { color: rgba(255,255,255,0.6); font-size: 0.95rem; }
+    .tour-tabs {
+      display: flex; justify-content: center; gap: 0;
+      max-width: 1200px; margin: 0 auto 1.5rem;
+      padding: 0 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .tour-tab {
+      background: none; border: none;
+      color: rgba(255,255,255,0.4);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 1.2rem 2rem; cursor: pointer;
+      transition: color 0.3s, border-color 0.3s;
+      border-bottom: 1px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tour-tab:hover { color: rgba(255,255,255,0.8); }
+    .tour-tab.active { color: var(--gold-light); border-bottom-color: var(--gold); }
+    .tour-viewer-wrap {
+      max-width: 1400px; margin: 0 auto;
+      padding: 0 2rem 9rem;
+    }
+    #panorama {
+      width: 100%; height: 70vh; min-height: 480px;
+      background: #0a0a08;
+    }
+    .pnlm-controls-container { display: none !important; }
+    .pnlm-zoom-controls { display: flex !important; }
+    .tour-hint {
+      text-align: center; margin-top: 1rem;
+      color: rgba(255,255,255,0.4); font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+    .tour-placeholder {
+      display: flex; align-items: center; justify-content: center;
+      height: 70vh; min-height: 480px; background: #0a0a08;
+      color: rgba(255,255,255,0.5); text-align: center; padding: 2rem;
+      flex-direction: column; gap: 1rem;
+      font-family: 'Cormorant Garamond', serif;
+    }
+    .tour-placeholder .ph-icon { font-size: 3rem; opacity: 0.3; }
+    .tour-placeholder .ph-text { font-size: 1.2rem; font-style: italic; }
+    .tour-placeholder .ph-sub { font-size: 0.85rem; font-family: 'Inter', sans-serif;
+      color: rgba(255,255,255,0.3); letter-spacing: 0.1em; text-transform: uppercase; }
 
     /* ABOUT */
     .about-section {
@@ -416,6 +478,10 @@
       .bedrooms-grid { grid-template-columns: 1fr 1fr; }
       .reviews-grid { grid-template-columns: 1fr; }
       .location-section { grid-template-columns: 1fr; gap: 3rem; }
+      .tour-tabs { overflow-x: auto; padding: 0 1rem; }
+      .tour-tab { padding: 1rem 1.2rem; font-size: 0.7rem; white-space: nowrap; }
+      .tour-viewer-wrap { padding: 0 0 6rem; }
+      #panorama { height: 55vh; min-height: 360px; }
     }
   </style>
 </head>
@@ -427,6 +493,7 @@
   <ul class="nav-links">
     <li><a href="#om">Om villan</a></li>
     <li><a href="#faciliteter">Faciliteter</a></li>
+    <li><a href="#tour">360° Tour</a></li>
     <li><a href="#omdomen">Omdömen</a></li>
     <li><a href="#hitta">Hitta hit</a></li>
     <li><a href="https://www.airbnb.se/rooms/1493291674241427621" target="_blank" class="nav-cta">Boka nu</a></li>
@@ -502,6 +569,25 @@
   </div>
   <div class="gallery-more">
     <a href="https://www.airbnb.se/rooms/1493291674241427621" target="_blank" class="btn btn-dark">Se alla foton på Airbnb</a>
+  </div>
+</section>
+
+<!-- VIRTUAL TOUR -->
+<section class="tour-section" id="tour">
+  <div class="tour-intro">
+    <div class="section-label">Virtuell rundtur</div>
+    <h2 class="section-title">Utforska villan i 360°</h2>
+    <p>Klicka och dra för att titta runt. Välj rum nedan för att förflytta dig genom villan.</p>
+  </div>
+  <div class="tour-tabs" id="tourTabs">
+    <button class="tour-tab active" data-scene="exterior">Exteriör</button>
+    <button class="tour-tab" data-scene="vardagsrum" disabled>Vardagsrum</button>
+    <button class="tour-tab" data-scene="bastu" disabled>Bastu</button>
+    <button class="tour-tab" data-scene="brygga" disabled>Brygga</button>
+  </div>
+  <div class="tour-viewer-wrap">
+    <div id="panorama"></div>
+    <div class="tour-hint">Drag · scroll för zoom · dubbelklick för fullskärm</div>
   </div>
 </section>
 
@@ -756,6 +842,64 @@
   ============================================================ */
   gsap.registerPlugin(ScrollTrigger);
 
+  /* ============================================================
+     PANNELLUM — 360° virtual tour
+  ============================================================ */
+  const scenes = {
+    exterior: {
+      panorama: '/panos/exterior.jpg',
+      title: 'Villa Svartsjö — exteriör',
+      hfov: 110, pitch: -5, yaw: 0,
+    },
+    // Lägg till fler scenes när du har 360°-foton:
+    // vardagsrum: { panorama: '/panos/vardagsrum.jpg', title: 'Vardagsrum', hfov: 110, pitch: 0, yaw: 0 },
+    // bastu:      { panorama: '/panos/bastu.jpg',      title: 'Bastun',     hfov: 110, pitch: 0, yaw: 0 },
+    // brygga:     { panorama: '/panos/brygga.jpg',     title: 'Bryggan',    hfov: 110, pitch: 0, yaw: 0 },
+  };
+
+  let pano;
+  function loadScene(key) {
+    const s = scenes[key];
+    if (!s) return;
+    if (pano) pano.destroy();
+    pano = pannellum.viewer('panorama', {
+      type: 'equirectangular',
+      panorama: s.panorama,
+      autoLoad: true,
+      autoRotate: -1.2,
+      hfov: s.hfov || 110,
+      minHfov: 50, maxHfov: 120,
+      pitch: s.pitch || 0,
+      yaw: s.yaw || 0,
+      compass: false,
+      showControls: true,
+      showZoomCtrl: true,
+      showFullscreenCtrl: true,
+      mouseZoom: true,
+      backgroundColor: [0.04, 0.04, 0.03],
+    });
+  }
+
+  // Tab-switching
+  document.getElementById('tourTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.tour-tab');
+    if (!btn || btn.disabled) return;
+    document.querySelectorAll('.tour-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    loadScene(btn.dataset.scene);
+  });
+
+  // Lazy-init: ladda när användaren scrollar nära tour-sektionen
+  const tourObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !pano) {
+      loadScene('exterior');
+      tourObserver.disconnect();
+    }
+  }, { rootMargin: '300px' });
+  if (document.getElementById('panorama')) {
+    tourObserver.observe(document.getElementById('panorama'));
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
 
     /* ----------------------------------------------------------
@@ -880,6 +1024,20 @@
           scrollTrigger: { trigger: item, start: 'top 85%' }
         }
       );
+    });
+
+    /* ----------------------------------------------------------
+       6.5 TOUR — fade-in tabs + viewer
+    ---------------------------------------------------------- */
+    gsap.from('.tour-tab', {
+      opacity: 0, y: 20,
+      stagger: 0.1, duration: 1, ease: 'expo.out',
+      scrollTrigger: { trigger: '.tour-tabs', start: 'top 85%' }
+    });
+    gsap.from('.tour-viewer-wrap', {
+      opacity: 0, y: 40,
+      duration: 1.4, ease: 'expo.out',
+      scrollTrigger: { trigger: '.tour-viewer-wrap', start: 'top 80%' }
     });
 
     /* ----------------------------------------------------------
