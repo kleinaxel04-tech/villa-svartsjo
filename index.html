@@ -11,6 +11,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
+  <!-- Lenis — smooth scroll -->
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -139,17 +141,17 @@
     }
 
     /* GALLERY */
-    .gallery-section { padding: 5rem 0; background: white; }
+    .gallery-section { padding: 9rem 0; background: white; }
     .section-label {
       text-align: center;
-      font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
-      color: var(--gold); margin-bottom: 0.5rem;
+      font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.8rem;
     }
     .section-title {
       text-align: center;
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 300; margin-bottom: 3rem;
+      font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+      font-weight: 300; margin-bottom: 4.5rem; line-height: 1.15;
     }
     .gallery-grid {
       display: grid;
@@ -175,8 +177,8 @@
     .highlights {
       display: grid; grid-template-columns: repeat(3, 1fr);
       max-width: 1100px; margin: 0 auto;
-      padding: 5rem 2rem;
-      gap: 3rem;
+      padding: 8rem 2rem;
+      gap: 4rem;
     }
     .highlight-item { text-align: center; }
     .highlight-icon {
@@ -192,7 +194,7 @@
     .about-section {
       display: grid; grid-template-columns: 1fr 1fr;
       max-width: 1200px; margin: 0 auto;
-      padding: 5rem 2rem; gap: 6rem; align-items: center;
+      padding: 9rem 2rem; gap: 7rem; align-items: center;
     }
     .about-image { position: relative; }
     .about-image img { width: 100%; height: 500px; object-fit: cover; }
@@ -216,7 +218,7 @@
     .about-text p { color: var(--muted); margin-bottom: 1.2rem; font-size: 0.95rem; }
 
     /* AMENITIES */
-    .amenities-section { background: var(--dark); padding: 5rem 2rem; }
+    .amenities-section { background: var(--dark); padding: 9rem 2rem; }
     .amenities-section .section-label { color: var(--gold-light); }
     .amenities-section .section-title { color: white; margin-bottom: 3rem; }
     .amenities-grid {
@@ -233,7 +235,7 @@
     .amenity-name { color: white; font-size: 0.9rem; letter-spacing: 0.05em; }
 
     /* BEDROOMS */
-    .bedrooms-section { padding: 5rem 2rem; background: white; }
+    .bedrooms-section { padding: 9rem 2rem; background: white; }
     .bedrooms-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
       max-width: 1100px; margin: 2rem auto 0; gap: 1.5rem;
@@ -256,14 +258,14 @@
     /* LOTUS */
     .lotus-section {
       background: linear-gradient(135deg, #1a1a18 0%, #2a2820 100%);
-      padding: 5rem 2rem; text-align: center;
+      padding: 9rem 2rem; text-align: center;
     }
     .lotus-section .section-label { color: var(--gold-light); }
     .lotus-section .section-title { color: white; margin-bottom: 1.5rem; }
     .lotus-section p { color: rgba(255,255,255,0.6); max-width: 600px; margin: 0 auto 2rem; }
 
     /* REVIEWS */
-    .reviews-section { padding: 5rem 2rem; }
+    .reviews-section { padding: 9rem 2rem; }
     .reviews-header { text-align: center; margin-bottom: 3rem; }
     .rating-big {
       font-family: 'Cormorant Garamond', serif;
@@ -292,7 +294,7 @@
 
     /* BOOKING */
     .booking-section {
-      background: var(--cream); padding: 5rem 2rem; text-align: center;
+      background: var(--cream); padding: 9rem 2rem; text-align: center;
       border-top: 1px solid var(--border);
     }
     .booking-section .section-title { margin-bottom: 1rem; }
@@ -305,7 +307,7 @@
     .location-section {
       display: grid; grid-template-columns: 1fr 1fr;
       max-width: 1200px; margin: 0 auto;
-      padding: 5rem 2rem; gap: 6rem; align-items: center;
+      padding: 9rem 2rem; gap: 7rem; align-items: center;
     }
     .location-info .label { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
     .location-info h2 {
@@ -756,6 +758,18 @@
 
   window.addEventListener('DOMContentLoaded', () => {
 
+    /* ----------------------------------------------------------
+       1. LENIS — smooth scroll synkat med ScrollTrigger
+    ---------------------------------------------------------- */
+    const lenis = new Lenis({
+      duration: 1.4,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 0.9,
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
 
     /* ----------------------------------------------------------
        2. NAV — krymper vid scroll
@@ -842,11 +856,11 @@
     });
 
     /* ----------------------------------------------------------
-       5. HIGHLIGHTS — stjägg-animation
+       5. HIGHLIGHTS — stagger-animation
     ---------------------------------------------------------- */
     gsap.from('#highlights .highlight-item', {
-      opacity: 0, y: 60,
-      stagger: 0.2, duration: 0.9, ease: 'power3.out',
+      opacity: 0, y: 50,
+      stagger: 0.25, duration: 1.4, ease: 'expo.out',
       scrollTrigger: {
         trigger: '#highlights',
         start: 'top 80%',
@@ -858,11 +872,11 @@
     ---------------------------------------------------------- */
     gsap.utils.toArray('.gallery-item').forEach((item, i) => {
       gsap.fromTo(item,
-        { opacity: 0, scale: 0.92, y: 40 },
+        { opacity: 0, scale: 0.96, y: 30 },
         {
           opacity: 1, scale: 1, y: 0,
-          duration: 0.9, ease: 'power3.out',
-          delay: i * 0.1,
+          duration: 1.4, ease: 'expo.out',
+          delay: i * 0.12,
           scrollTrigger: { trigger: item, start: 'top 85%' }
         }
       );
@@ -918,16 +932,16 @@
     ---------------------------------------------------------- */
     gsap.utils.toArray('.section-title').forEach(title => {
       gsap.from(title, {
-        opacity: 0, y: 50,
-        duration: 0.9, ease: 'power3.out',
+        opacity: 0, y: 40,
+        duration: 1.4, ease: 'expo.out',
         scrollTrigger: { trigger: title, start: 'top 85%' }
       });
     });
 
     gsap.utils.toArray('.section-label').forEach(label => {
       gsap.from(label, {
-        opacity: 0, letterSpacing: '0.5em',
-        duration: 0.8, ease: 'power2.out',
+        opacity: 0, letterSpacing: '0.6em',
+        duration: 1.2, ease: 'expo.out',
         scrollTrigger: { trigger: label, start: 'top 88%' }
       });
     });
@@ -936,9 +950,9 @@
        9. AMENITIES — wave-stagger
     ---------------------------------------------------------- */
     gsap.from('.amenity-item', {
-      opacity: 0, y: 50, scale: 0.9,
-      stagger: { each: 0.07, from: 'start' },
-      duration: 0.7, ease: 'power3.out',
+      opacity: 0, y: 40, scale: 0.95,
+      stagger: { each: 0.08, from: 'start' },
+      duration: 1.1, ease: 'expo.out',
       scrollTrigger: { trigger: '.amenities-grid', start: 'top 80%' }
     });
 
@@ -946,8 +960,8 @@
        10. BEDROOM CARDS — stagger från vänster
     ---------------------------------------------------------- */
     gsap.from('.bedroom-card', {
-      opacity: 0, x: -40,
-      stagger: 0.12, duration: 0.7, ease: 'power3.out',
+      opacity: 0, x: -30,
+      stagger: 0.14, duration: 1.1, ease: 'expo.out',
       scrollTrigger: { trigger: '.bedrooms-grid', start: 'top 80%' }
     });
 
@@ -955,8 +969,8 @@
        11. REVIEWS — fade up med guldcitat
     ---------------------------------------------------------- */
     gsap.from('.review-card', {
-      opacity: 0, y: 60,
-      stagger: 0.2, duration: 0.9, ease: 'power3.out',
+      opacity: 0, y: 50,
+      stagger: 0.25, duration: 1.4, ease: 'expo.out',
       scrollTrigger: { trigger: '.reviews-grid', start: 'top 80%' }
     });
 
@@ -980,15 +994,8 @@
     ---------------------------------------------------------- */
     gsap.from('.booking-actions .btn', {
       opacity: 0, y: 30,
-      stagger: 0.15, duration: 0.7, ease: 'power3.out',
+      stagger: 0.2, duration: 1.2, ease: 'expo.out',
       scrollTrigger: { trigger: '.booking-actions', start: 'top 85%' }
-    });
-
-    // Subtil puls på bokningsknappen
-    gsap.to('.btn-primary', {
-      boxShadow: '0 0 0 8px rgba(176,141,87,0.15)',
-      repeat: -1, yoyo: true, duration: 1.5, ease: 'sine.inOut',
-      scrollTrigger: { trigger: '.booking-section', start: 'top 80%' }
     });
 
     /* ----------------------------------------------------------
